@@ -34,31 +34,41 @@
   </v-container>
 </template>
 
-<script setup>
-import { ref } from 'vue';
-
-const email = ref('');
-const password = ref('');
-const valid = ref(false);
-const form = ref(null);
-
-const emailRules = [
-  v => !!v || 'El correo es requerido',
-  v => /.+@.+\..+/.test(v) || 'Ingrese un correo válido',
-];
-
-const passwordRules = [
-  v => !!v || 'La contraseña es requerida',
-  v => v.length >= 6 || 'Mínimo 6 caracteres',
-];
-
-const login = () => {
-  if (form.value.validate()) {
-    alert('Iniciando sesión...');
-  }
-};
-
-const forgotPassword = () => {
-  alert('Redirigir a recuperación de contraseña');
+<script>
+export default {
+  data() {
+    return {
+      email: '',
+      password: '',
+      valid: false,
+      form: null,
+      emailRules: [
+        v => !!v || 'El correo es requerido',
+        v => /.+@.+\..+/.test(v) || 'Ingrese un correo válido',
+      ],
+      passwordRules: [
+        v => !!v || 'La contraseña es requerida',
+        v => v.length >= 6 || 'Mínimo 6 caracteres',
+      ],
+      testUser: {
+        email: 'carlos@mail.com',
+        password: 'bolirana'
+      }
+    };
+  },
+  methods: {
+    login () {
+      if (this.$refs.form.validate()) {
+        if (this.email === this.testUser.email && this.password === this.testUser.password) {
+          this.$router.push({ path: '/App' })
+        } else {
+          alert('Usuario no válido')
+        }
+      }
+    },
+    forgotPassword () {
+      alert('Redirigir a recuperación de contraseña')
+    },
+  },
 };
 </script>
