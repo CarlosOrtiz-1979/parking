@@ -1,40 +1,58 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import DefaultLayout from '/src/layouts/default.vue'
+import MainLayout from '/src/layouts/main.vue'
 
 const routes = [
   {
-    path: '/login',
-    name: 'login',
-    component: () => import('../views/login.vue')
+    path: '/',
+    name: 'Default',
+    component: MainLayout,
+    redirect: '/',
+    children: [
+      {
+        path: '/',
+        name: 'login',
+        component: () => import('../views/login.vue')
+      },
+    ]
   },
   {
-    path: '/department',
-    name: 'department',
-    component: () => import('../views/department.vue')
-  },
-  {
-    path: '/employee',
-    name: 'employee',
-    component: () => import('../views/employee.vue')
-  },
-  {
-    path: '/user',
-    name: 'user',
-    component: () => import('../views/user.vue')
-  },
-  {
-    path: '/role',
-    name: 'role',
-    component: () => import('../views/role.vue')
-  },
-  {
-    path: '/permission',
-    name: 'permission',
-    component: () => import('../views/permission.vue')
-  },
-  {
-    path: '/vehicle',
-    name: 'vehicle',
-    component: () => import('../views/vehicle.vue')
+    path: '/App',
+    name: 'App',
+    component: DefaultLayout,
+    redirect: '/App/department',
+    children: [
+      {
+        path: '/App/department',
+        name: 'department',
+        component: () => import('../views/department.vue')
+      },
+      {
+        path: '/App/employee',
+        name: 'employee',
+        component: () => import('../views/employee.vue')
+      },
+      {
+        path: '/App/user',
+        name: 'user',
+        component: () => import('../views/user.vue')
+      },
+      {
+        path: '/App/role',
+        name: 'role',
+        component: () => import('../views/role.vue')
+      },
+      {
+        path: '/App/permission',
+        name: 'permission',
+        component: () => import('../views/permission.vue')
+      },
+      {
+        path: '/App/vehicle',
+        name: 'vehicle',
+        component: () => import('../views/vehicle.vue')
+      },
+    ]
   },
 ]
 
