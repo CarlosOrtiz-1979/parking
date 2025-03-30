@@ -18,6 +18,13 @@
           variant="outlined"
         ></v-text-field>
 
+        <v-text-field
+          v-model="email"
+          :rules="emailRules"
+          label="Email"
+          variant="outlined"
+        ></v-text-field>
+
         <v-autocomplete
           v-model="position"
           :items="positionItems"
@@ -42,7 +49,7 @@
           </template>
         </v-autocomplete>
 
-        <v-btn class="mt-2" type="submit" block color="success">
+        <v-btn class="mt-2" type="submit" block color="success" @click="sendEmployee">
           Enviar
         </v-btn>
       </v-form>
@@ -52,6 +59,9 @@
 
 <script>
   export default {
+    props: {
+      employee: Object
+    },
     data: () => ({
       code: '',
       department: null,
@@ -104,5 +114,17 @@
         'Líder de SST'
       ]
     }),
+    mounted () {
+      if (this.employee) {
+        this.id = this.employee.id
+        this.code = this.employee.code
+        this.name = this.employee.name
+        this.email = this.employee.email
+        this.department = this.employee.department
+        this.position = this.employee.position
+      }
+    },
+    methods: {
+    }
   }
 </script>

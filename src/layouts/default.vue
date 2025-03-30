@@ -15,7 +15,7 @@
 
     <v-main class="d-flex align-center justify-center" height="100%">
       <v-container>
-        <router-view></router-view>
+        <slot></slot>
       </v-container>
     </v-main>
   </v-layout>
@@ -24,7 +24,7 @@
 <script>
 
 export default {
-  name: 'App',
+  name: 'Default',
 
   data: () => ({
     //

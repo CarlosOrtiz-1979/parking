@@ -1,11 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
 
 const routes = [
   {
+    path: '/login',
+    name: 'login',
+    component: () => import('../views/login.vue')
+  },
+  {
     path: '/department',
     name: 'department',
-    // component: () => import('../views/department.vue')
+    component: () => import('../views/department.vue')
   },
   {
     path: '/employee',
@@ -20,17 +24,17 @@ const routes = [
   {
     path: '/role',
     name: 'role',
-    // component: () => import('../views/department.vue')
+    component: () => import('../views/role.vue')
   },
   {
     path: '/permission',
     name: 'permission',
-    // component: () => import('../views/department.vue')
+    component: () => import('../views/permission.vue')
   },
   {
     path: '/vehicle',
     name: 'vehicle',
-    // component: () => import('../views/department.vue')
+    component: () => import('../views/vehicle.vue')
   },
 ]
 

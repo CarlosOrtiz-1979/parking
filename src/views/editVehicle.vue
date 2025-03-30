@@ -12,6 +12,7 @@
           variant="outlined"
           item-title="name"
           item-value="code"
+          dense
         >
           <template v-slot:item="{ props, item }">
             <v-list-item
@@ -22,39 +23,58 @@
           </template>
         </v-autocomplete>
 
+        <v-autocomplete
+          v-model="vehicleType"
+          :items="vehicleTypeItems"
+          label="Tipo de Vehículo"
+          variant="outlined"
+        ></v-autocomplete>
+
         <v-text-field
-          v-model="name"
+          v-model="licensePlate"
           :rules="nameRules"
-          label="Nombre y apellido"
+          label="Placas"
           variant="outlined"
         ></v-text-field>
 
         <v-text-field
-          v-model="email"
-          :rules="emailRules"
-          label="Email"
+          v-model="brand"
+          :rules="nameRules"
+          label="Marca"
           variant="outlined"
         ></v-text-field>
 
         <v-text-field
-          v-model="password"
-          :rules="passwordRules"
-          label="Contraseña"
+          v-model="model"
+          :rules="nameRules"
+          label="Modelo"
           variant="outlined"
-          :type="showPassword ? 'text' : 'password'"
-          :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-          @click:append="showPassword = !showPassword"
         ></v-text-field>
 
         <v-text-field
-          v-model="password2"
-          :rules="passwordRules"
-          label="Repita la contraseña"
+          v-model="year"
+          label="Año"
           variant="outlined"
-          :type="showPassword2 ? 'text' : 'password'"
-          :append-icon="showPassword2 ? 'mdi-eye' : 'mdi-eye-off'"
-          @click:append="showPassword2 = !showPassword2"
         ></v-text-field>
+
+        <v-text-field
+          v-model="color"
+          label="Color"
+          variant="outlined"
+        ></v-text-field>
+
+        <v-text-field
+          v-model="photo"
+          label="Foto URL"
+          variant="outlined"
+        ></v-text-field>
+
+        <v-textarea
+          v-model="comment"
+          label="Comentario"
+          variant="outlined"
+          rows="2"
+        ></v-textarea>
 
         <v-btn class="mt-2" type="submit" block color="success">Enviar</v-btn>
       </v-form>
@@ -65,9 +85,15 @@
 <script>
   export default {
     props: {
-      user: Object
+      vehicle: Object
     },
     data: () => ({
+      vehicleType: null,
+      vehicleTypeItems: [
+        'Carro',
+        'Moto',
+        'Bicicleta'
+      ],
       employee: null,
       employeeItems: [
         {
@@ -111,14 +137,20 @@
           }
         }
       ],
-      name: '',
+      brand: '',
+      model: '',
+      year: '',
+      color: '',
+      comment: '',
+      licensePlate: '',
+      photo: '',
       showPassword: false,
       showPassword2: false,
       nameRules: [
         value => {
-          if (value?.length >= 5) return true
+          if (value?.length >= 3) return true
 
-          return 'El nombre debe tener mínimo 5 caracteres.'
+          return 'El nombre debe tener mínimo 3 caracteres.'
         },
       ],
       email: '',
@@ -146,11 +178,11 @@
       ]
     }),
     mounted () {
-      if (this.user) {
-        this.id = this.user.id
-        this.name = this.user.name
-        this.email = this.user.email
-        this.employee = this.user.employee.code
+      if (this.vehicle) {
+        this.id = this.vehicle.id
+        this.name = this.vehicle.name
+        this.email = this.vehicle.email
+        this.employee = this.vehicle.employee.code
       }
     }
   }
