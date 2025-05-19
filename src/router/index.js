@@ -23,6 +23,11 @@ const routes = [
     redirect: '/App/department',
     children: [
       {
+        path: '/App/ticket',
+        name: 'ticket',
+        component: () => import('../views/ticket.vue')
+      },
+      {
         path: '/App/department',
         name: 'department',
         component: () => import('../views/department.vue')

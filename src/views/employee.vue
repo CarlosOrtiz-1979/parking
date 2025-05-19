@@ -48,6 +48,7 @@
     data: () => ({
       headers: [
         { title: 'Código', value: 'code', align: 'end' },
+        { title: 'Cédula', value: 'document', align: 'end' },
         { title: 'Nombre', value: 'name' },
         { title: 'Email', value: 'email' },
         { title: 'Cargo', value: 'position', align: 'end' },
@@ -59,6 +60,7 @@
           id: '1',
           name: 'Pedro Perez',
           code: '3085',
+          document: '30580722',
           position: 'Operador',
           email: 'pedro@mail.com',
           department: {
@@ -70,6 +72,7 @@
           id: '2',
           name: 'Ramon Valdez',
           code: '3145',
+          document: '40580721',
           position: 'Operador',
           email: 'pedro@mail.com',
           department: {
@@ -81,6 +84,7 @@
           id: '3',
           name: 'Juan Gonzalez',
           code: '3128',
+          document: '50580718',
           position: 'Operador',
           email: 'pedro@mail.com',
           department: {
@@ -92,6 +96,7 @@
           id: '4',
           name: 'Carlos Gomez',
           code: '3228',
+          document: '70580780',
           position: 'Auxiliar de Mantenimiento',
           email: 'pedro@mail.com',
           department: {

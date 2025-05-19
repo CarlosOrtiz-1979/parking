@@ -12,6 +12,12 @@
         ></v-text-field>
 
         <v-text-field
+          v-model="document"
+          label="Cédula del empleado"
+          variant="outlined"
+        ></v-text-field>
+
+        <v-text-field
           v-model="name"
           :rules="nameRules"
           label="Nombres y apellidos"
@@ -64,6 +70,7 @@
     },
     data: () => ({
       code: '',
+      document: '',
       department: null,
       departmentItems: [
         {
@@ -118,6 +125,7 @@
       if (this.employee) {
         this.id = this.employee.id
         this.code = this.employee.code
+        this.document = this.employee.document
         this.name = this.employee.name
         this.email = this.employee.email
         this.department = this.employee.department

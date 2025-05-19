@@ -4,6 +4,7 @@
 
     <v-navigation-drawer>
       <v-list nav>
+        <v-list-item title="Nuevo Ticket" link to="/App/ticket"></v-list-item>
         <v-list-item title="Departamentos" link to="/App/department"></v-list-item>
         <v-list-item title="Empleados" link to="/App/employee"></v-list-item>
         <v-list-item title="Usuarios" link to="/App/user"></v-list-item>
