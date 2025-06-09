@@ -4,47 +4,47 @@
       Ingreso de Empleado
     </v-card-title>
     <v-card-text>
-      <v-form fast-fail validate-on="blur" @submit.prevent class="pa-6">
+      <v-form fast-fail validate-on="blur" class="pa-6">
         <v-text-field
-          v-model="code"
+          v-model="employee.code"
           label="Código del empleado"
           variant="outlined"
         ></v-text-field>
 
         <v-text-field
-          v-model="document"
+          v-model="employee.document"
           label="Cédula del empleado"
           variant="outlined"
         ></v-text-field>
 
         <v-text-field
-          v-model="name"
+          v-model="employee.name"
           :rules="nameRules"
           label="Nombres y apellidos"
           variant="outlined"
         ></v-text-field>
 
         <v-text-field
-          v-model="email"
+          v-model="employee.email"
           :rules="emailRules"
           label="Email"
           variant="outlined"
         ></v-text-field>
 
         <v-autocomplete
-          v-model="position"
+          v-model="employee.position"
           :items="positionItems"
           label="Cargo"
           variant="outlined"
         ></v-autocomplete>
 
         <v-autocomplete
-          v-model="department"
+          v-model="employee.departmentId"
           :items="departmentItems"
           label="Departamento"
           variant="outlined"
           item-title="name"
-          item-value="id"
+          item-value="_id"
         >
           <template v-slot:item="{ props, item }">
             <v-list-item
@@ -55,7 +55,7 @@
           </template>
         </v-autocomplete>
 
-        <v-btn class="mt-2" type="submit" block color="success" @click="sendEmployee">
+        <v-btn class="mt-2" block color="success" @click="updateEmployee">
           Enviar
         </v-btn>
       </v-form>
@@ -64,32 +64,23 @@
 </template>
 
 <script>
+  import axios from 'axios'
+
   export default {
     props: {
-      employee: Object
+      employeeForUpdate: Object
     },
     data: () => ({
-      code: '',
-      document: '',
-      department: null,
-      departmentItems: [
-        {
-          id: '1',
-          name: 'Operaciones',
-          manager: 'Jose Luis'
-        },
-        {
-          id: '2',
-          name: 'Mantenimiento',
-          manager: 'Ricardo Mora'
-        },
-        {
-          id: '3',
-          name: 'Seguridad',
-          manager: 'Yesid Arena'
-        }
-      ],
-      name: '',
+      employee: {
+        name: '',
+        email: '',
+        code: '',
+        document: '',
+        department: null,
+        position: '',
+        departmentId: null
+      },
+      departmentItems: [],
       nameRules: [
         value => {
           if (value?.length >= 5) return true
@@ -97,7 +88,6 @@
           return 'El nombre debe tener mínimo 5 caracteres.'
         },
       ],
-      email: '',
       emailRules: [
         value => {
           if (/^[a-z.-]+@[a-z.-]+\.[a-z]+$/i.test(value)) return true
@@ -105,7 +95,6 @@
           return 'Debe ser un email válido.'
         },
       ],
-      position: '',
       positionItems: [
         'Operador',
         'Auxiliar SST',
@@ -122,17 +111,47 @@
       ]
     }),
     mounted () {
-      if (this.employee) {
-        this.id = this.employee.id
-        this.code = this.employee.code
-        this.document = this.employee.document
-        this.name = this.employee.name
-        this.email = this.employee.email
-        this.department = this.employee.department
-        this.position = this.employee.position
+      if (this.employeeForUpdate) {
+        this.employee = this.employeeForUpdate
       }
+      this.getDepartments()
     },
     methods: {
+      async getDepartments () {
+        try {
+          const response = await axios.get('http://localhost:3000/api/v1/departments')
+          if (response && response.data) {
+            this.departmentItems = response.data
+          } else {
+            console.log('Error al obtener los usuarios')
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      },
+      async updateEmployee () {
+        if (!this.employeeForUpdate) {
+          try {
+            const response = await axios.post('http://localhost:3000/api/v1/employee', this.employee)
+            response.data = {
+              departmentId: response.data.departmentId._id,
+              department: response.data.departmentId,
+              ...response.data
+            }
+            this.$emit('close', response.data)
+          } catch (error) {
+            console.log(error)
+          }
+          
+        } else {
+          try {
+            const response = await axios.put(`http://localhost:3000/api/v1/employee/${this.employeeForUpdate._id}`, this.employee)
+            this.$emit('close', response.data)
+          } catch (error) {
+            console.log(error)
+          }
+        }
+      }
     }
   }
 </script>

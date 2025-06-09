@@ -28,6 +28,11 @@ const routes = [
         component: () => import('../views/ticket.vue')
       },
       {
+        path: '/App/tickethistory',
+        name: 'ticketHistory',
+        component: () => import('../views/ticketHistory.vue')
+      },
+      {
         path: '/App/department',
         name: 'department',
         component: () => import('../views/department.vue')

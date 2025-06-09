@@ -1,36 +1,31 @@
 <template>
   <v-container class="fill-height d-flex justify-center align-center">
-    <v-card class="pa-6" width="400" elevation="10">
-      <v-card-title class="text-center text-h5 font-weight-bold">
-        Iniciar Sesión
-      </v-card-title>
-      <v-card-text>
-        <v-form ref="form" v-model="valid" @submit.prevent="login">
-          <v-text-field
-            v-model="email"
-            label="Correo Electrónico"
-            type="email"
-            :rules="emailRules"
-            prepend-inner-icon="mdi-email"
-            required
-          />
-          <v-text-field
-            v-model="password"
-            label="Contraseña"
-            type="password"
-            :rules="passwordRules"
-            prepend-inner-icon="mdi-lock"
-            required
-          />
-          <v-btn block color="primary" :disabled="!valid" type="submit" class="mt-3">
-            Iniciar Sesión
+    <v-row style="width: 100%;">
+      <v-col cols="12">
+        <v-img height="140px" :src="logo" contain style="background-position: left center !important;" />
+      </v-col>
+    </v-row>
+    <v-row style="width: 100%;" justify="center" justfy-content="center">
+      <v-card class="pa-6" width="400" elevation="10">
+        <v-card-title class="text-center text-h5 font-weight-bold">
+          Iniciar Sesión
+        </v-card-title>
+        <v-card-text>
+          <v-form ref="form" v-model="valid" @submit.prevent="login">
+            <v-text-field v-model="email" label="Correo Electrónico" type="email" :rules="emailRules"
+              prepend-inner-icon="mdi-email" required />
+            <v-text-field v-model="password" label="Contraseña" type="password" :rules="passwordRules"
+              prepend-inner-icon="mdi-lock" required />
+            <v-btn block color="primary" :disabled="!valid" type="submit" class="mt-3">
+              Iniciar Sesión
+            </v-btn>
+          </v-form>
+          <v-btn variant="text" class="mt-2" block @click="forgotPassword">
+            ¿Olvidaste tu contraseña?
           </v-btn>
-        </v-form>
-        <v-btn variant="text" class="mt-2" block @click="forgotPassword">
-          ¿Olvidaste tu contraseña?
-        </v-btn>
-      </v-card-text>
-    </v-card>
+        </v-card-text>
+      </v-card>
+    </v-row>
   </v-container>
 </template>
 
@@ -55,6 +50,11 @@ export default {
         password: 'bolirana'
       }
     };
+  },
+  computed: {
+    logo () {
+      return require('../assets/img/logo.png')
+    }
   },
   methods: {
     login () {

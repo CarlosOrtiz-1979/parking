@@ -4,23 +4,23 @@
       Ingreso de Departamento
     </v-card-title>
     <v-card-text>
-      <v-form fast-fail validate-on="blur" @submit.prevent class="pa-6">
+      <v-form fast-fail validate-on="blur" class="pa-6">
         
         <v-text-field
-          v-model="name"
+          v-model="department.name"
           :rules="nameRules"
           label="Nombre"
           variant="outlined"
         ></v-text-field>
 
         <v-text-field
-          v-model="manager"
+          v-model="department.manager"
           :rules="nameRules"
           label="Lider"
           variant="outlined"
         ></v-text-field>       
 
-        <v-btn class="mt-2" type="submit" block color="success">
+        <v-btn class="mt-2" block color="success" @click="updateDepartment">
           Enviar
         </v-btn>
       </v-form>
@@ -29,14 +29,17 @@
 </template>
 
 <script>
+  import axios from 'axios'
+
   export default {
     props: {
-      department: Object
+      departmentForUpdate: Object
     },
     data: () => ({
-      manager: '',
-            
-      name: '',
+      department: {
+        manager: '',      
+        name: '',
+      },
       nameRules: [
         value => {
           if (value?.length >= 5) return true
@@ -47,10 +50,28 @@
       
     }),
     mounted () {
-      if (this.department) {
-        this.id = this.department.id
-        this.manager = this.department.manager
-        this.name = this.department.name        
+      if (this.userForUpdate) {
+        this.department = this.departmentForUpdate
+      }
+    },
+    methods: {
+      async updateDepartment () {
+        if (!this.departmentForUpdate) {
+          try {
+            const response = await axios.post('http://localhost:3000/api/v1/department', this.department)
+            this.$emit('close', response.data)
+          } catch (error) {
+            console.log(error)
+          }
+          
+        } else {
+          try {
+            const response = await axios.put(`http://localhost:3000/api/v1/department/${this.departmentForUpdate._id}`, this.department)
+            this.$emit('close', response.data)
+          } catch (error) {
+            console.log(error)
+          }
+        }
       }
     }
   }

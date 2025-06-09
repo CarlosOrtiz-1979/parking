@@ -3,8 +3,8 @@
     <v-card-text>
       <v-data-table
         :headers="headers"
-        :items="items"
-        item-key="id"
+        :items="employees"
+        item-key="_id"
         hide-default-footer
       >
         <template v-slot:top>
@@ -26,9 +26,9 @@
         </template>
         <template v-slot:[`item.actions`]="{ item }">
           <div class="d-flex ga-2 justify-end">
-            <v-icon color="medium-emphasis" icon="mdi-pencil" size="small" @click="editEmployee(item.id)"></v-icon>
+            <v-icon color="medium-emphasis" icon="mdi-pencil" size="small" @click="editEmployee(item._id)"></v-icon>
 
-            <v-icon color="medium-emphasis" icon="mdi-delete" size="small" @click="removeEmployee(item.id)"></v-icon>
+            <v-icon color="medium-emphasis" icon="mdi-delete" size="small" @click="deleteEmployee(item._id)"></v-icon>
           </div>
         </template>
       </v-data-table>
@@ -36,15 +36,23 @@
   </v-card>
 
   <v-dialog v-model="editEmployeeDialog" max-width="500">
-    <edit-employee :employee="editingEmployee"></edit-employee>
+    <edit-employee :employee-for-update="editingEmployee" @close="closeEditDialog"></edit-employee>
   </v-dialog>
+
+  <delete-dialog
+    v-model="deleteEmployeeDialog"
+    @delete="removeEmployee()"
+    @cancel="closeDeleteDialog"
+  />
 </template>
 
 <script>
+  import axios from 'axios'
   import editEmployee from './editEmployee.vue'
+  import deleteDialog from '@/components/deleteDialog.vue'
 
   export default {
-    components: { editEmployee },
+    components: { editEmployee, deleteDialog },
     data: () => ({
       headers: [
         { title: 'Código', value: 'code', align: 'end' },
@@ -55,8 +63,8 @@
         { title: 'Departamento', value: 'department.name', align: 'end' },
         { title: 'Acciones', key: 'actions', align: 'end', sortable: false },
       ],
-      items: [
-        {
+      employees: [
+        /* {
           id: '1',
           name: 'Pedro Perez',
           code: '3085',
@@ -103,23 +111,75 @@
             name: 'Mantenimiento',
             manager: 'Ricardo Mora'
           }
-        }
+        } */
       ],
       editEmployeeDialog: false,
-      editingEmployee: null
+      editingEmployee: null,
+      deleteEmployeeDialog: false,
+      deleteEmployeeId: null
     }),
+    mounted () {
+      this.getEmployees()
+    },
     methods: {
+      async getEmployees () {
+        try {
+          const response = await axios.get('http://localhost:3000/api/v1/employees')
+          console.log(response)
+          if (response && response.data) {
+            response.data.map(employee => {
+              this.employees.push({
+                department: employee.departmentId,
+                departmentId: employee.departmentId._id,
+                ...employee
+              })
+            })
+          } else {
+            console.log('Error al obtener los usuarios')
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      },
       addEmployee () {
+        this.editingEmployee = null
         this.editEmployeeDialog = true
       },
       editEmployee (id) {
-        console.log('Id => ', id)
-        this.editingEmployee = this.items.find(employee => employee.id === id)
+        this.editingEmployee = this.employees.find(employee => employee._id === id)
         this.editEmployeeDialog = true
       },
-      removeEmployee (id) {
-        const employeeIndex = this.items.findIndex(employee => employee.id === id)
-        this.items.splice(employeeIndex, 1)
+      deleteEmployee (id) {
+        this.deleteEmployeeDialog = true
+        this.deleteEmployeeId = id
+      },
+      async removeEmployee () {
+        try {
+          const response = await axios.delete(`http://localhost:3000/api/v1/employee/${this.deleteEmployeeId}`)
+
+          if (response && response.data) {
+            console.log('Usuario eliminado', response.data)
+            const employeeIndex = this.employees.findIndex(employee => employee._id === this.deleteEmployeeId)
+            this.employees.splice(employeeIndex, 1)
+          } else {
+            console.log('Error al eliminar el usuario')
+          }
+        } catch (error) {
+          console.log(error)
+        } finally {
+          this.closeDeleteDialog()
+        }
+      },
+      closeEditDialog (data) {
+        this.editEmployeeDialog = false
+        this.editingEmployee = null
+        if (data) {
+          this.employees.push(data)
+        }
+      },
+      closeDeleteDialog () {
+        this.deleteEmployeeDialog = false
+        this.editingEmployee = null
       }
     }
   }

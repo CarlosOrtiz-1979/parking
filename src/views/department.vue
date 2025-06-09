@@ -3,7 +3,7 @@
     <v-card-text>
       <v-data-table
         :headers="headers"
-        :items="items"
+        :items="departments"
         item-key="id"
         hide-default-footer
       >
@@ -26,9 +26,9 @@
         </template>
         <template v-slot:[`item.actions`]="{ item }">
           <div class="d-flex ga-2 justify-end">
-            <v-icon color="medium-emphasis" icon="mdi-pencil" size="small" @click="editDepartment(item.id)"></v-icon>
+            <v-icon color="medium-emphasis" icon="mdi-pencil" size="small" @click="editDepartment(item._id)"></v-icon>
 
-            <v-icon color="medium-emphasis" icon="mdi-delete" size="small" @click="removeDepartment(item.id)"></v-icon>
+            <v-icon color="medium-emphasis" icon="mdi-delete" size="small" @click="deleteDepartment(item._id)"></v-icon>
           </div>
         </template>
       </v-data-table>
@@ -36,59 +36,90 @@
   </v-card>
 
   <v-dialog v-model="editDepartmentDialog" max-width="500">
-    <edit-department :department="editingDepartment"></edit-department>
+    <edit-department :department="editingDepartment" @close="closeEditDialog"></edit-department>
   </v-dialog>
+
+  <delete-dialog
+    v-model="deleteDepartmentDialog"
+    @delete="removeDepartment()"
+    @cancel="closeDeleteDialog"
+  />
 </template>
 
 <script>
+  import axios from 'axios'
   import editDepartment from './editDepartment.vue'
+  import deleteDialog from '@/components/deleteDialog.vue'
 
   export default {
-    components: { editDepartment },
+    components: { editDepartment, deleteDialog },
     data: () => ({
       headers: [
-        { title: 'id', value: 'id', align: 'end' },
         { title: 'Nombre', value: 'name' },
         { title: 'Lider', value: 'manager' },        
         { title: 'Acciones', key: 'actions', align: 'end', sortable: false },
       ],
-      items: [
-        {
-          id: '1',
-          name: 'Operaciones',
-          manager: 'Jose Luis',          
-        },
-        {
-          id: '2',
-          name: 'Operaciones',
-          manager: 'Jose Luis'
-        },
-        {
-          id: '3',
-          name: 'Operaciones',
-          manager: 'Jose Luis'
-        },
-        {
-          id: '4',
-          name: 'Mantenimiento',
-          manager: 'Ricardo Mora'
-        }
-      ],
+      departments: [],
       editDepartmentDialog: false,
+      editingDepartment: null,
+      deleteDepartmentDialog: false,
       editingDepartment: null
     }),
+    async mounted () {
+      await this.getDepartments()
+    },
     methods: {
+      async getDepartments () {
+        try {
+          const response = await axios.get('http://localhost:3000/api/v1/departments')
+          if (response && response.data) {
+            this.departments = response.data
+          } else {
+            console.log('Error al obtener los usuarios')
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      },
       addDepartment () {
+        this.editingDepartment = null
         this.editDepartmentDialog = true
       },
       editDepartment (id) {
-        console.log('Id => ', id)
-        this.editingDepartment = this.items.find(department => department.id === id)
+        this.editingDepartment = this.departments.find(department => department._id === id)
         this.editDepartmentDialog = true
       },
-      removeDepartment (id) {
-        const departmentIndex = this.items.findIndex(department => department.id === id)
-        this.items.splice(departmentIndex, 1)
+      deleteDepartment (id) {
+        this.deleteDepartmentDialog = true
+        this.deleteDepartmentId = id
+      },
+      async removeDepartment () {
+        try {
+          const response = await axios.delete(`http://localhost:3000/api/v1/department/${this.deleteDepartmentId}`)
+
+          if (response && response.data) {
+            console.log('Usuario eliminado', response.data)
+            const departmentIndex = this.departments.findIndex(department => department._id === this.deleteDepartmentId)
+            this.departments.splice(departmentIndex, 1)
+          } else {
+            console.log('Error al eliminar el usuario')
+          }
+        } catch (error) {
+          console.log(error)
+        } finally {
+          this.closeDeleteDialog()
+        }
+      },
+      closeEditDialog (data) {
+        this.editDepartmentDialog = false
+        this.editingDepartment = null
+        if (data) {
+          this.departments.push(data)
+        }
+      },
+      closeDeleteDialog () {
+        this.deleteDepartmentDialog = false
+        this.editingDepartment = null
       }
     }
   }
