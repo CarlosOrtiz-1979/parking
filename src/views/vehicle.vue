@@ -3,7 +3,7 @@
     <v-card-text>
       <v-data-table
         :headers="headers"
-        :items="items"
+        :items="vehicles"
         item-key="name"
         hide-default-footer
       >
@@ -39,9 +39,9 @@
         </template>
         <template v-slot:[`item.actions`]="{ item }">
           <div class="d-flex ga-2 justify-end">
-            <v-icon color="medium-emphasis" icon="mdi-pencil" size="small" @click="editVehicle(item.id)"></v-icon>
+            <v-icon color="medium-emphasis" icon="mdi-pencil" size="small" @click="editVehicle(item._id)"></v-icon>
 
-            <v-icon color="medium-emphasis" icon="mdi-delete" size="small" @click="removeVehicle(item.id)"></v-icon>
+            <v-icon color="medium-emphasis" icon="mdi-delete" size="small" @click="deleteVehicle(item._id)"></v-icon>
           </div>
         </template>
       </v-data-table>
@@ -49,15 +49,23 @@
   </v-card>
 
   <v-dialog v-model="editVehicleDialog" max-width="500">
-    <edit-vehicle :vehicle="editingVehicle"></edit-vehicle>
+    <edit-vehicle :vehicle-for-update="editingVehicle"></edit-vehicle>
   </v-dialog>
+
+  <delete-dialog
+    v-model="deleteVehicleDialog"
+    @delete="removeVehicle()"
+    @cancel="closeDeleteDialog"
+  />
 </template>
 
 <script>
+  import axios from 'axios'
   import editVehicle from './editVehicle.vue'
+  import deleteDialog from '@/components/deleteDialog.vue'
 
   export default {
-    components: { editVehicle },
+    components: { editVehicle, deleteDialog },
     data: () => ({
       headers: [
         { title: 'Foto', value: 'photo', align: 'start' },
@@ -65,11 +73,11 @@
         { title: 'Vehículo', value: 'vehicle' },
         { title: 'Empleado', value: 'employee.name' },
         { title: 'Cargo', value: 'employee.position', align: 'start' },
-        { title: 'Departamento', value: 'employee.department.name', align: 'center' },
+        { title: 'Departamento', value: 'employee.departmentId.name', align: 'center' },
         { title: 'Acciones', key: 'actions', align: 'end', sortable: false },
       ],
-      items: [
-        {
+      vehicles: [
+        /* {
           id: '1',
           vehicleType: 'Carro',          
           brand:'Mazda',
@@ -152,22 +160,75 @@
               manager: 'Jose Luis'
             }
           }
-        }
+        } */
       ],
       editVehicleDialog: false,
-      editingVehicle: null
+      editingVehicle: null,
+      deleteVehicleDialog: false
     }),
+    async mounted () {
+      await this.getVehicles()
+    },
     methods: {
+      async getVehicles () {
+        try {
+          const response = await axios.get('http://localhost:3000/api/v1/vehicles')
+          if (response && response.data) {
+            console.log('response', response.data)
+            response.data.map(vehicle => {
+              this.vehicles.push({
+                employee: vehicle.employeeId,
+                employeeId: vehicle.employeeId._id,
+                ...vehicle
+              })
+            })
+            // this.vehicles = response.data
+          } else {
+            console.log('Error al obtener los usuarios')
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      },
       addVehicle () {
+        this.editingVehicle = null
         this.editVehicleDialog = true
       },
       editVehicle (id) {
-        this.editingVehicle = this.items.find(vehicle => vehicle.id === id)
+        console.log('id', id)
+        this.editingVehicle = this.vehicles.find(vehicle => vehicle._id === id)
         this.editVehicleDialog = true
       },
-      removeVehicle (id) {
-        const vehicleIndex = this.items.findIndex(vehicle => vehicle.id === id)
-        this.items.splice(vehicleIndex, 1)
+      deleteVehicle (id) {
+        this.deleteVehicleDialog = true
+        this.deleteVehicleId = id
+      },
+      async removeVehicle () {
+        try {
+          const response = await axios.delete(`http://localhost:3000/api/v1/vehicle/${this.deleteVehicleId}`)
+
+          if (response && response.data) {
+            const vehicleIndex = this.vehicles.findIndex(vehicle => vehicle._id === this.deleteVehicleId)
+            this.vehicles.splice(vehicleIndex, 1)
+          } else {
+            console.log('Error al eliminar el usuario')
+          }
+        } catch (error) {
+          console.log(error)
+        } finally {
+          this.closeDeleteDialog()
+        }
+      },
+      closeEditDialog (data) {
+        this.editVehicleDialog = false
+        this.editingVehicle = null
+        if (data) {
+          this.vehicles.push(data)
+        }
+      },
+      closeDeleteDialog () {
+        this.deleteVehicleDialog = false
+        this.editingVehicle = null
       }
     }
   }

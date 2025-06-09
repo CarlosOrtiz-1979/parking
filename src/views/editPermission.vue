@@ -4,22 +4,22 @@
       Ingreso de Permisos
     </v-card-title>
     <v-card-text>
-      <v-form fast-fail validate-on="blur" @submit.prevent class="pa-6">
+      <v-form fast-fail validate-on="blur" class="pa-6">
         
         <v-text-field
-          v-model="name"
+          v-model="permission.name"
           :rules="nameRules"
           label="Nombre"
           variant="outlined"
         ></v-text-field>
 
         <v-text-field
-          v-model="description"          
+          v-model="permission.description"          
           label="Descripción"
           variant="outlined"
         ></v-text-field>       
 
-        <v-btn class="mt-2" type="submit" block color="success">
+        <v-btn class="mt-2" block color="success" @click="updatePermission">
           Enviar
         </v-btn>
       </v-form>
@@ -28,14 +28,17 @@
 </template>
 
 <script>
+  import axios from 'axios'
+
   export default {
     props: {
-      permission: Object
+      permissionForUpdate: Object
     },
     data: () => ({
-      description: '',
-            
-      name: '',
+      permission: {
+        description: '',
+        name: '',
+      },
       nameRules: [
         value => {
           if (value?.length >= 5) return true
@@ -46,10 +49,28 @@
       
     }),
     mounted () {
-      if (this.permission) {
-        this.id = this.permission.id        
-        this.name = this.permission.name
-        this.description = this.permission.description        
+      if (this.permissionForUpdate) {
+        this.permission = this.permissionForUpdate
+      }
+    },
+    methods: {
+      async updatePermission () {
+        if (!this.permissionForUpdate) {
+          try {
+            const response = await axios.post('http://localhost:3000/api/v1/permission', this.permission)
+            this.$emit('close', response.data)
+          } catch (error) {
+            console.log(error)
+          }
+          
+        } else {
+          try {
+            const response = await axios.put(`http://localhost:3000/api/v1/permission/${this.permissionForUpdate._id}`, this.permission)
+            this.$emit('close', response.data)
+          } catch (error) {
+            console.log(error)
+          }
+        }
       }
     }
   }

@@ -4,22 +4,22 @@
       Ingreso de Roles
     </v-card-title>
     <v-card-text>
-      <v-form fast-fail validate-on="blur" @submit.prevent class="pa-6">
+      <v-form fast-fail validate-on="blur" class="pa-6">
         
         <v-text-field
-          v-model="name"
+          v-model="role.name"
           :rules="nameRules"
           label="Nombre"
           variant="outlined"
         ></v-text-field>
 
         <v-text-field
-          v-model="description"          
+          v-model="role.description"          
           label="Descripción"
           variant="outlined"
         ></v-text-field>       
 
-        <v-btn class="mt-2" type="submit" block color="success">
+        <v-btn class="mt-2" block color="success" @click="updateRole">
           Enviar
         </v-btn>
       </v-form>
@@ -28,14 +28,17 @@
 </template>
 
 <script>
+  import axios from 'axios'
+
   export default {
     props: {
-      role: Object
+      roleForUpdate: Object
     },
     data: () => ({
-      description: '',
-            
-      name: '',
+      role: {
+        description: '',
+        name: '',
+      },
       nameRules: [
         value => {
           if (value?.length >= 5) return true
@@ -46,10 +49,28 @@
       
     }),
     mounted () {
-      if (this.role) {
-        this.id = this.role.id        
-        this.name = this.role.name
-        this.description = this.role.description        
+      if (this.roleForUpdate) {
+        this.role = this.roleForUpdate
+      }
+    },
+    methods: {
+      async updateRole () {
+        if (!this.roleForUpdate) {
+          try {
+            const response = await axios.post('http://localhost:3000/api/v1/role', this.role)
+            this.$emit('close', response.data)
+          } catch (error) {
+            console.log(error)
+          }
+          
+        } else {
+          try {
+            const response = await axios.put(`http://localhost:3000/api/v1/role/${this.roleForUpdate._id}`, this.role)
+            this.$emit('close', response.data)
+          } catch (error) {
+            console.log(error)
+          }
+        }
       }
     }
   }

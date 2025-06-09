@@ -4,14 +4,14 @@
       Ingreso de Usuario
     </v-card-title>
     <v-card-text>
-      <v-form fast-fail validate-on="blur" @submit.prevent class="pa-6">
+      <v-form fast-fail validate-on="blur" class="pa-6">
         <v-autocomplete
-          v-model="employee"
+          v-model="user.employee"
           :items="employeeItems"
           label="Empleado"
           variant="outlined"
           item-title="name"
-          item-value="code"
+          return-object
         >
           <template v-slot:item="{ props, item }">
             <v-list-item
@@ -23,21 +23,21 @@
         </v-autocomplete>
 
         <v-text-field
-          v-model="name"
+          v-model="user.name"
           :rules="nameRules"
           label="Nombre y apellido"
           variant="outlined"
         ></v-text-field>
 
         <v-text-field
-          v-model="email"
+          v-model="user.email"
           :rules="emailRules"
           label="Email"
           variant="outlined"
         ></v-text-field>
 
         <v-text-field
-          v-model="password"
+          v-model="user.password"
           :rules="passwordRules"
           label="Contraseña"
           variant="outlined"
@@ -56,21 +56,22 @@
           @click:append="showPassword2 = !showPassword2"
         ></v-text-field>
 
-        <v-btn class="mt-2" type="submit" block color="success">Enviar</v-btn>
+        <v-btn class="mt-2" block color="success" @click="updateUser">Enviar</v-btn>
       </v-form>
     </v-card-text>
   </v-card>
 </template>
 
 <script>
+  import axios from 'axios';
+
   export default {
     props: {
-      user: Object
+      userForUpdate: Object
     },
     data: () => ({
-      employee: null,
       employeeItems: [
-        {
+        /* {
           id: '1',
           name: 'Pedro Perez',
           code: '3085',
@@ -109,9 +110,16 @@
             name: 'Mantenimiento',
             manager: 'Ricardo Mora'
           }
-        }
+        } */
       ],
-      name: '',
+      user: {
+        employee: '',
+        name: '',
+        code: '',
+        email: '',
+        password: '',
+        employeeId: null
+      },
       showPassword: false,
       showPassword2: false,
       nameRules: [
@@ -121,7 +129,6 @@
           return 'El nombre debe tener mínimo 5 caracteres.'
         },
       ],
-      email: '',
       emailRules: [
         value => {
           if (/^[a-z.-]+@[a-z.-]+\.[a-z]+$/i.test(value)) return true
@@ -129,7 +136,6 @@
           return 'Debe ser un email válido.'
         },
       ],
-      password: '',
       password2: '',
       passwordRules: [
         value => {
@@ -146,11 +152,48 @@
       ]
     }),
     mounted () {
-      if (this.user) {
-        this.id = this.user.id
-        this.name = this.user.name
-        this.email = this.user.email
-        this.employee = this.user.employee.code
+      if (this.userForUpdate) {
+        this.user = this.userForUpdate
+      }
+      this.getEmployees()
+    },
+    methods: {
+      async getEmployees () {
+        try {
+          const response = await axios.get('http://localhost:3000/api/v1/employees')
+          console.log(response)
+          if (response && response.data) {
+            response.data.map(employee => {
+              this.employeeItems.push({
+                department: employee.departmentId,
+                departmentId: employee.departmentId._id,
+                ...employee
+              })
+            })
+          } else {
+            console.log('Error al obtener los usuarios')
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      },
+      async updateUser () {
+        if (!this.userForUpdate) {
+          try {
+            const response = await axios.post('http://localhost:3000/api/v1/user', this.user)
+            this.$emit('close', response.data)
+          } catch (error) {
+            console.log(error)
+          }
+          
+        } else {
+          try {
+            const response = await axios.put(`http://localhost:3000/api/v1/user/${this.userForUpdate._id}`, this.user)
+            this.$emit('close', response.data)
+          } catch (error) {
+            console.log(error)
+          }
+        }
       }
     }
   }
